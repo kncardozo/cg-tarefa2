@@ -202,8 +202,7 @@ function onDocumentKeyDown(event) {
         aceno();
         
     }else if(event.which==50){
-        console.log("Segunda Animação");
-        tween_arm.stop();
+        console.log("Segunda Animação");        
 
     }else if (event.which==51){
         console.log("Terceira Animação");
@@ -222,13 +221,14 @@ function aceno() {
     
     var right_upper_arm = robot.getObjectByName("right_upper_arm"); 
     var right_lower_arm = ((robot.getObjectByName("right_upper_arm")).getObjectByName("lower_arm") );
+    var hand = ((robot.getObjectByName("right_upper_arm")).getObjectByName("lower_arm").getObjectByName("hand") );
 
     if(right_upper_arm.rotation._z <= (Math.PI/2)){
         
         rot_pt = new THREE.Vector3
             (
                 ( right_upper_arm.geometry.parameters.width + right_upper_arm.__position.x) / 2,
-                ( right_upper_arm.geometry.parameters.height + right_upper_arm.__position.y) / 2.25,
+                ( right_upper_arm.geometry.parameters.height + right_upper_arm.__position.y) / 2.6,
                 0
             );
         right_upper_arm.rotateAroundPoint( rot_pt, 0.01 );    
@@ -240,12 +240,27 @@ function aceno() {
                 0
             );
         right_lower_arm.rotateAroundPoint( rot_pt, 0.005 );    
+    }else{
+        rot_pt = new THREE.Vector3
+        (
+            ( 0) / 2,
+            (hand.__position.y),
+            0
+        );
+
+        if( hand.rotation._z <= (Math.PI/4) ){
+            console.log("IF 1");
+            hand.rotateAroundPoint( rot_pt, -0.05 );
+           // console.log(hand.rotation._z);
+        }else{
+            console.log("IF 2");
+            hand.rotateAroundPoint( rot_pt, 0.009 );    
+        }        
+         
     }
     // Update changes to renderer
     stats.update();
-    renderer.render(scene, camera);
-    
-    
+    renderer.render(scene, camera);  
 
 }
 
