@@ -242,19 +242,24 @@ function aceno() {
         right_lower_arm.rotateAroundPoint( rot_pt, 0.005 );    
     }else{
         rot_pt = new THREE.Vector3
-        (
-            ( 0) / 2,
-            (hand.__position.y),
-            0
-        );
-
-        if( hand.rotation._z <= (Math.PI/4) ){
+            (
+                ( 0)/ 2,
+                (hand.__position.y),
+                0
+            );
+        if( hand.rotation._z <= (Math.PI/6) ){
+            
             console.log("IF 1");
-            hand.rotateAroundPoint( rot_pt, -0.05 );
+            hand.rotateAroundPoint( rot_pt, 0.005 );
            // console.log(hand.rotation._z);
         }else{
-            console.log("IF 2");
-            hand.rotateAroundPoint( rot_pt, 0.009 );    
+            console.log("IF 2");           
+
+            while(hand.rotation._z >= -(Math.PI/6)){
+                console.log("IF/while 2");
+                hand.rotateAroundPoint( rot_pt, -0.005 );
+            }           
+                
         }        
          
     }
