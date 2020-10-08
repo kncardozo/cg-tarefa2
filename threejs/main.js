@@ -27,6 +27,7 @@ THREE.Object3D.prototype.rotateAroundPoint = function() {
         }
     
         this.rotateOnAxis(axis, theta); // rotate the OBJECT
+        
 
         return this;
     }
@@ -71,12 +72,13 @@ function gen_robot() {
     left_hand.position.y = -1.5;
     left_lower_arm.position.y = -3;
     left_upper_arm.position.x = -2.6;
+    left_upper_arm.position.z = 1;
     
     // right: upper arm, arm, hand
     var right_upper_arm = left_upper_arm.clone();  
     right_upper_arm.name = "right_upper_arm";
     right_upper_arm.position.x = 2.6;
-    
+    right_upper_arm.position.z = 1;
 
     // left: upper leg, leg, foot
     var left_upper_leg = gen_rect(1.5, 4);
@@ -91,19 +93,20 @@ function gen_robot() {
     left_lower_leg.position.y = -3;
     left_upper_leg.position.x = -1;
     left_upper_leg.position.y = -5;
+    
 
     // right: upper leg, leg, foot
     var right_upper_leg = left_upper_leg.clone();  
     right_upper_leg.name = "right_upper_leg";
     right_upper_leg.position.x = 1;
-
+    
     // Creating hieararchy
     robot.add(torso);
-    torso.add(right_upper_arm);
     torso.add(head);
+    torso.add(right_upper_arm);      
+    torso.add(left_upper_arm);
     torso.add(left_upper_leg);
     torso.add(right_upper_leg);
-    torso.add(left_upper_arm);
 
     robot.name = "robot";
 
@@ -163,17 +166,7 @@ function init() {
     renderer = new THREE.WebGLRenderer({ antialias: true });
     window.addEventListener('resize', onWindowResize, false);
     /* renderer.setViewport( vpXmin, vpYmin, vpXwidth, vpYheight );  Unused */ 
-    renderer.setSize(window.innerWidth, window.innerHeight); 
-    
-    /* Unused
-    //Viewport set up
-    var oc_aspect_ratio = width / height; 
-    var vp_aspect_ratio = oc_aspect_ratio; 
-    var vpXwidth = 800; //... pixels
-    var vpYheight =  vpXwidth / vp_aspect_ratio;  //... pixels, to ensure no distortion
-    var vpXmin = -vpXwidth  /2; vpXmax = vpXwidth  /2; //... pixels
-    var vpYmin = -vpYheight /2; vpYmax = vpYheight /2; //... pixels
-    */   
+    renderer.setSize(window.innerWidth, window.innerHeight);  
 
     // Adding both renderer and stats to the Web page
     stats = new Stats();
@@ -195,8 +188,7 @@ function init() {
 function onWindowResize() {
 
     camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    /* renderer.setViewport( vpXmin, vpYmin, vpXwidth, vpYheight ); Unused */
+    camera.updateProjectionMatrix();    
     renderer.setSize(window.innerWidth, window.innerHeight);
     
 }
@@ -204,52 +196,58 @@ function onWindowResize() {
 function onDocumentKeyDown(event) {
     // One for Hand wave, Two for your Custom Animation #2 and Three - Your Custom Animation #3
     // For now, only prints inserted key
+    
     if(event.which==49){
-        console.log("Primeira Animação");
+        console.log("Primeira Animação");    
+        aceno();
         
-
     }else if(event.which==50){
-        console.log("Primeira Animação")
+        console.log("Segunda Animação");
+        tween_arm.stop();
 
     }else if (event.which==51){
-        console.log("Primeira Animação")
+        console.log("Terceira Animação");
 
     }    
 }
 
-function animate1() {
-    requestAnimationFrame(animate1);
+function aceno() {
+   
     // Sample animation, you should implement at least 3 animations:
     // One is the hand wave (as in lecture 3.4)
-    // The other two: explore your creativity =)
+    // The other two: explore your creativity =) 
+    requestAnimationFrame(aceno);
+    
     var rot_pt;
     
-    var right_upper_arm = robot.getObjectByName("right_upper_arm") 
-    rot_pt = new THREE.Vector3
-        (
-            ( right_upper_arm.geometry.parameters.width + right_upper_arm.__position.x) / 2,
-            ( right_upper_arm.geometry.parameters.height + right_upper_arm.__position.y) / 2.25,
-            0
-        );
-    right_upper_arm.rotateAroundPoint( rot_pt, 0.01 );
-    //console.log(right_upper_arm);
-
+    var right_upper_arm = robot.getObjectByName("right_upper_arm"); 
     var right_lower_arm = ((robot.getObjectByName("right_upper_arm")).getObjectByName("lower_arm") );
-    rot_pt = new THREE.Vector3
-        (
-            ( 0) / 2,
-            ( right_lower_arm.__position.y  ) / 1.6,
-            0
-        );
-    right_lower_arm.rotateAroundPoint( rot_pt, 0.005 );
-     
-    
 
+    if(right_upper_arm.rotation._z <= (Math.PI/2)){
+        
+        rot_pt = new THREE.Vector3
+            (
+                ( right_upper_arm.geometry.parameters.width + right_upper_arm.__position.x) / 2,
+                ( right_upper_arm.geometry.parameters.height + right_upper_arm.__position.y) / 2.25,
+                0
+            );
+        right_upper_arm.rotateAroundPoint( rot_pt, 0.01 );    
+                
+        rot_pt = new THREE.Vector3
+            (
+                ( 0) / 2,
+                ( right_lower_arm.__position.y  ) / 1.6,
+                0
+            );
+        right_lower_arm.rotateAroundPoint( rot_pt, 0.005 );    
+    }
     // Update changes to renderer
     stats.update();
     renderer.render(scene, camera);
+    
+    
 
 }
 
 init();
-animate1();
+
