@@ -82,7 +82,7 @@ function gen_robot() {
 
     // left: upper leg, leg, foot
     var left_upper_leg = gen_rect(1.5, 4);
-    left_upper_arm.name = "left_upper_leg";
+    left_upper_leg.name = "left_upper_leg";
     var left_lower_leg = gen_rect(1, 3);
     left_lower_leg.name = "lower_leg";
     var left_foot = gen_rect(1.5,0.5);
@@ -102,9 +102,9 @@ function gen_robot() {
     
     // Creating hieararchy
     robot.add(torso);
-    torso.add(head);
-    torso.add(right_upper_arm);      
+    torso.add(head);         
     torso.add(left_upper_arm);
+    torso.add(right_upper_arm); 
     torso.add(left_upper_leg);
     torso.add(right_upper_leg);
 
@@ -192,17 +192,21 @@ function onWindowResize() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     
 }
+var id_aceno, id_choro, id_dance;
 
 function onDocumentKeyDown(event) {
     // One for Hand wave, Two for your Custom Animation #2 and Three - Your Custom Animation #3
     // For now, only prints inserted key
     
     if(event.which==49){
-        console.log("Primeira Animação");    
+        console.log("Primeira Animação");         
+          
         aceno();
         
     }else if(event.which==50){
-        console.log("Segunda Animação");        
+        console.log("Segunda Animação");  
+        
+        choro();      
 
     }else if (event.which==51){
         console.log("Terceira Animação");
@@ -215,7 +219,8 @@ function aceno() {
     // Sample animation, you should implement at least 3 animations:
     // One is the hand wave (as in lecture 3.4)
     // The other two: explore your creativity =) 
-    requestAnimationFrame(aceno);
+    cancelAnimationFrame( id_choro );
+    id_aceno = requestAnimationFrame(aceno);
     
     var rot_pt;
     
@@ -235,7 +240,7 @@ function aceno() {
                 
         rot_pt = new THREE.Vector3
             (
-                ( 0) / 2,
+                ( 0 ) / 2,
                 ( right_lower_arm.__position.y  ) / 1.6,
                 0
             );
@@ -268,6 +273,79 @@ function aceno() {
     renderer.render(scene, camera);  
 
 }
+
+function choro() {
+    cancelAnimationFrame( id_aceno );
+    id_choro = requestAnimationFrame(choro);
+
+    var rot_pt;
+    
+    var right_upper_arm = robot.getObjectByName("right_upper_arm"); 
+    var left_upper_arm = robot.getObjectByName("left_upper_arm"); 
+    var right_lower_arm = ((robot.getObjectByName("right_upper_arm")).getObjectByName("lower_arm") );
+    var left_lower_arm = ((robot.getObjectByName("left_upper_arm")).getObjectByName("lower_arm") );
+    var head = robot.getObjectByName("head"); 
+
+    if(right_upper_arm.rotation._z >= 0 && right_upper_arm.rotation._z <= (5*Math.PI/6) ) {
+        
+        rot_pt = new THREE.Vector3
+            (
+                ( right_upper_arm.geometry.parameters.width + right_upper_arm.__position.x) / 2,
+                ( right_upper_arm.geometry.parameters.height + right_upper_arm.__position.y) / 2.6,
+                0
+            );
+        right_upper_arm.rotateAroundPoint( rot_pt, 0.01 );    
+        
+        rot_pt = new THREE.Vector3
+            (
+                ( left_upper_arm.geometry.parameters.width + left_upper_arm.__position.x) / 0.5,
+                ( left_upper_arm.geometry.parameters.height + left_upper_arm.__position.y) / 2.5,
+                0
+            );
+        left_upper_arm.rotateAroundPoint( rot_pt, -0.01 );    
+                
+            
+    }else{    
+        //antebraço movimentando    
+        if(right_lower_arm.rotation._z >= 0 && right_lower_arm.rotation._z <= (2*Math.PI/3)  ){
+            rot_pt = new THREE.Vector3
+            (
+                ( 0 ) / 2,
+                ( right_lower_arm.__position.y  ) / 1.6,
+                0
+            );
+            right_lower_arm.rotateAroundPoint( rot_pt, 0.03 );
+
+            rot_pt = new THREE.Vector3
+                (
+                    ( 0 ) / 2,
+                    ( right_lower_arm.__position.y  ) / 1.6,
+                    0
+                );
+            left_lower_arm.rotateAroundPoint( rot_pt, -0.03 );
+
+        
+        } 
+        //translação da cabeça
+        head.translateY(-0.005);
+    
+        if(head.position.y <= 4.5){
+            head.position.y = 4.8;
+        }
+        
+    }    
+
+    stats.update();
+    renderer.render(scene, camera);
+}
+
+
+/*
+    Falta: 
+    - animação 3, 
+    - resetar o robô na troca de animação, 
+    - ajeitar a mão do aceno;    
+*/
 
 init();
 
