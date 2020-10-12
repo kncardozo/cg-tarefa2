@@ -41,6 +41,8 @@ var camera, scene, renderer;
 var stats;
 // Objects in Scene
 var robot;
+//Variável para controle de direção
+var direcao = 'esquerda';
 
 
 // Function to generate robot
@@ -239,16 +241,16 @@ function aceno() {
                 ( right_upper_arm.geometry.parameters.height + right_upper_arm.__position.y) / 2.6,
                 0
             );
-        right_upper_arm.rotateAroundPoint( rot_pt, 0.01 );    
+        right_upper_arm.rotateAroundPoint( rot_pt, 0.05 );    
                 
         rot_pt = new THREE.Vector3
             (
-                ( 0 ) / 2,
+                ( right_lower_arm.__position.x ) / 2,
                 ( right_lower_arm.__position.y  ) / 1.6,
                 0
             );
-        right_lower_arm.rotateAroundPoint( rot_pt, 0.005 );    
-    }else{
+        right_lower_arm.rotateAroundPoint( rot_pt, 0.05 );    
+    /*}else{
         rot_pt = new THREE.Vector3
             (
                 ( 0)/ 2,
@@ -268,13 +270,36 @@ function aceno() {
                 hand.rotateAroundPoint( rot_pt, -0.005 );
             }           
                 
-        }        
-         
+        }*/            
     }
+
+    if(right_lower_arm.rotation._z >= (Math.PI/2)){
+        direcao = 'direita';
+    }
+
+    if(right_lower_arm.rotation._z <= 0) {
+        direcao = 'esquerda';
+    }
+
+    if(direcao == 'esquerda'){
+        hand.rotateAroundPoint( rot_pt, 0.05 );
+    }
+
+    if(direcao == 'direita'){
+        hand.rotateAroundPoint( rot_pt, -0.05 );
+    }
+
+    if(hand.rotation._z >= (Math.PI/8)){
+        direcao = 'direita';
+    }
+
+    if(hand.rotation._z >= -(Math.PI/8)){
+        direcao = 'esquerda';
+    }
+
     // Update changes to renderer
     stats.update();
-    renderer.render(scene, camera);  
-
+    renderer.render(scene, camera);
 }
 
 function choro() {
@@ -342,6 +367,7 @@ function choro() {
     stats.update();
     renderer.render(scene, camera);
 }
+
 function dance() {
     cancelAnimationFrame( id_aceno );
     cancelAnimationFrame( id_choro );
@@ -380,34 +406,37 @@ function dance() {
             );
         left_upper_arm.rotateAroundPoint( rot_pt, -0.01 );
 
-       /* rot_pt = new THREE.Vector3
+    if(right_upper_leg.rotation._z >= 0 && right_upper_leg.rotation._z <= (Math.PI) ) {
+       
+        rot_pt = new THREE.Vector3
             (
                 ( right_upper_leg.geometry.parameters.width + right_upper_leg.__position.x) / 1,
                 ( right_upper_leg.geometry.parameters.height + right_upper_leg.__position.y) / 3,
                 0
             );
         right_upper_leg.rotateAroundPoint( rot_pt, -0.01 );    
-         
+     
         rot_pt = new THREE.Vector3
             (
-                ( left_upper_leg.geometry.parameters.width + left_upper_leg.__position.x) / 1,
-                ( left_upper_leg.geometry.parameters.height + left_upper_leg.__position.y) / -3,
+                ( left_upper_leg.__position.x) / -50,
+                ( left_upper_leg.__position.y) / -40,
                 0
             );
-        left_upper_leg.rotateAroundPoint( rot_pt, -0.01 );
-        */
+        left_upper_leg.rotateAroundPoint( rot_pt, 0.01 );
+    }    
         rot_pt = new THREE.Vector3
             (
                 ( torso.geometry.parameters.width + torso.__position.x) / 4,
                 ( torso.geometry.parameters.height + torso.__position.y) / 6,
                 0
             );
-        torso.rotateAroundPoint( rot_pt, 0.01 );
-        
+        torso.translateX(-0.005);
 
-    }else{       
-       
-       //if(right_upper_arm.position <= 0.5  ){
+
+
+
+
+    }else{      
         
         //translação da cabeça
         head.translateY(-0.005);
