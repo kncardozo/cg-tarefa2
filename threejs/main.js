@@ -4,10 +4,12 @@
     Prof.: João Vitor
 
     COMANDOS:
-    NUM 0 - Recarrega página para troca de animação;
+    NUM 0 - Recarrega página para troca de animação;*
     NUM 1 - Roda Animação de Aceno;
     NUM 2 - Roda Animação de Choro;
     NUM 3 - Roda Animação de Dança;
+
+    *Necessário recarregar a página para a realização de outra animação
 
 */
 THREE.Object3D.prototype.savePosition = function() {
