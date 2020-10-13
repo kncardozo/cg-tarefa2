@@ -1,6 +1,15 @@
-// Rotation around point logic
-// Based on https://stackoverflow.com/questions/42812861/three-js-pivot-point/42866733#42866733
+/*
+    Alunas: Karine Cardozo - 113.099.920
+            Kathleen Santana - 113.163.232
+    Prof.: João Vitor
 
+    COMANDOS:
+    NUM 0 - Recarrega página para troca de animação;
+    NUM 1 - Roda Animação de Aceno;
+    NUM 2 - Roda Animação de Choro;
+    NUM 3 - Roda Animação de Dança;
+
+*/
 THREE.Object3D.prototype.savePosition = function() {
     return function () {
         this.__position = this.position.clone(); 
@@ -41,8 +50,8 @@ var camera, scene, renderer;
 var stats;
 // Objects in Scene
 var robot;
-//Variável para controle de direção
-var direcao = 'esquerda';
+//Variável para controle de direção da animação
+var direcao = '';
 
 
 // Function to generate robot
@@ -114,7 +123,6 @@ function gen_robot() {
 
     return robot
 }
-
 
 // Auxiliary function to generate rectangle
 function gen_rect( width, height ) {
@@ -197,32 +205,30 @@ function onWindowResize() {
 var id_aceno, id_choro, id_dance;
 
 function onDocumentKeyDown(event) {
-    // One for Hand wave, Two for your Custom Animation #2 and Three - Your Custom Animation #3
-    // For now, only prints inserted key
     
-    if(event.which==49){
-        console.log("Primeira Animação");         
-          
-        aceno();
+    if(event.which==49 || event.which==97){
+        console.log("Primeira Animação");
+        aceno();        
         
-    }else if(event.which==50){
-        console.log("Segunda Animação");  
-        
-        choro();      
+    }else if(event.which==50 || event.which==98){
+        console.log("Segunda Animação");          
+        choro();
 
-    }else if (event.which==51){
-        console.log("Terceira Animação");
-
+    }else if (event.which==51 || event.which==99){
+        console.log("Terceira Animação");    
+        direcao='esquerda';
         dance();
 
+    }else if(event.which==48 || event.which==96){
+        //Para recarregar a página
+        console.log("Reload");
+        document.location.reload(true);
     }    
+    console.log(event.which);
 }
 
-function aceno() {
-   
-    // Sample animation, you should implement at least 3 animations:
-    // One is the hand wave (as in lecture 3.4)
-    // The other two: explore your creativity =) 
+function aceno() {   
+    //Animação do Aceno
     cancelAnimationFrame( id_choro );
     cancelAnimationFrame( id_dance );
     id_aceno = requestAnimationFrame(aceno);
@@ -233,7 +239,8 @@ function aceno() {
     var right_lower_arm = ((robot.getObjectByName("right_upper_arm")).getObjectByName("lower_arm") );
     var hand = ((robot.getObjectByName("right_upper_arm")).getObjectByName("lower_arm").getObjectByName("hand") );
 
-    if(right_upper_arm.rotation._z <= (Math.PI/2)){
+    if(right_upper_arm.rotation._z < (Math.PI/2)){
+        //Rotacioanndo o braço direito enquanto é menor q 90º
         
         rot_pt = new THREE.Vector3
             (
@@ -249,53 +256,30 @@ function aceno() {
                 ( right_lower_arm.__position.y  ) / 1.6,
                 0
             );
-        right_lower_arm.rotateAroundPoint( rot_pt, 0.05 );    
-    /*}else{
+        right_lower_arm.rotateAroundPoint( rot_pt, 0.05 );
+        direcao="esquerda";
+    }else {
+        //Quando atingir 90º mexer a mão         
         rot_pt = new THREE.Vector3
-            (
-                ( 0)/ 2,
-                (hand.__position.y),
-                0
-            );
-        if( hand.rotation._z <= (Math.PI/6) ){
-            
-            console.log("IF 1");
-            hand.rotateAroundPoint( rot_pt, 0.005 );
-           // console.log(hand.rotation._z);
-        }else{
-            console.log("IF 2");           
-
-            while(hand.rotation._z >= -(Math.PI/6)){
-                console.log("IF/while 2");
-                hand.rotateAroundPoint( rot_pt, -0.005 );
-            }           
-                
-        }*/            
-    }
-
-    if(right_lower_arm.rotation._z >= (Math.PI/2)){
-        direcao = 'direita';
-    }
-
-    if(right_lower_arm.rotation._z <= 0) {
-        direcao = 'esquerda';
-    }
-
-    if(direcao == 'esquerda'){
-        hand.rotateAroundPoint( rot_pt, 0.05 );
-    }
-
-    if(direcao == 'direita'){
-        hand.rotateAroundPoint( rot_pt, -0.05 );
-    }
-
-    if(hand.rotation._z >= (Math.PI/8)){
-        direcao = 'direita';
-    }
-
-    if(hand.rotation._z >= -(Math.PI/8)){
-        direcao = 'esquerda';
-    }
+        (
+            ( 0)/ 2,
+            (hand.__position.y),
+            0
+        );
+        
+        if(hand.rotation._z >= (Math.PI/6)){            
+            direcao = 'direita';
+        }
+        if(hand.rotation._z <= -(Math.PI/6)){           
+            direcao = 'esquerda';
+        }
+        if(direcao == 'esquerda'){
+            hand.rotateAroundPoint( rot_pt, 0.05 );                
+        }  
+        if(direcao == 'direita'){
+            hand.rotateAroundPoint( rot_pt, -0.05 );                
+        }  
+    } 
 
     // Update changes to renderer
     stats.update();
@@ -303,6 +287,7 @@ function aceno() {
 }
 
 function choro() {
+    //Animação de choro
     cancelAnimationFrame( id_aceno );
     cancelAnimationFrame( id_dance );
     id_choro = requestAnimationFrame(choro);
@@ -316,14 +301,14 @@ function choro() {
     var head = robot.getObjectByName("head"); 
 
     if(right_upper_arm.rotation._z >= 0 && right_upper_arm.rotation._z <= (5*Math.PI/6) ) {
-        
+        //Elevando os dois braços até a cabeça
         rot_pt = new THREE.Vector3
             (
                 ( right_upper_arm.geometry.parameters.width + right_upper_arm.__position.x) / 2,
                 ( right_upper_arm.geometry.parameters.height + right_upper_arm.__position.y) / 2.6,
                 0
             );
-        right_upper_arm.rotateAroundPoint( rot_pt, 0.01 );    
+        right_upper_arm.rotateAroundPoint( rot_pt, 0.05 );    
         
         rot_pt = new THREE.Vector3
             (
@@ -331,7 +316,7 @@ function choro() {
                 ( left_upper_arm.geometry.parameters.height + left_upper_arm.__position.y) / 2.5,
                 0
             );
-        left_upper_arm.rotateAroundPoint( rot_pt, -0.01 );    
+        left_upper_arm.rotateAroundPoint( rot_pt, -0.05 );    
                 
             
     }else{    
@@ -343,7 +328,7 @@ function choro() {
                 ( right_lower_arm.__position.y  ) / 1.6,
                 0
             );
-            right_lower_arm.rotateAroundPoint( rot_pt, 0.03 );
+            right_lower_arm.rotateAroundPoint( rot_pt, 0.05 );
 
             rot_pt = new THREE.Vector3
                 (
@@ -351,7 +336,7 @@ function choro() {
                     ( right_lower_arm.__position.y  ) / 1.6,
                     0
                 );
-            left_lower_arm.rotateAroundPoint( rot_pt, -0.03 );
+            left_lower_arm.rotateAroundPoint( rot_pt, -0.05 );
 
         
         } 
@@ -369,93 +354,85 @@ function choro() {
 }
 
 function dance() {
+    //animação de dança
     cancelAnimationFrame( id_aceno );
     cancelAnimationFrame( id_choro );
     id_dance = requestAnimationFrame(dance);
-
-    var rot_pt;
+    var theta = 0.05;    
     
     var right_upper_arm = robot.getObjectByName("right_upper_arm"); 
     var left_upper_arm = robot.getObjectByName("left_upper_arm"); 
-    var right_lower_arm = ((robot.getObjectByName("right_upper_arm")).getObjectByName("lower_arm") );
-    var left_lower_arm = ((robot.getObjectByName("left_upper_arm")).getObjectByName("lower_arm") );
-    
+        
     var right_upper_leg = robot.getObjectByName("right_upper_leg"); 
     var left_upper_leg = robot.getObjectByName("left_upper_leg"); 
-    var right_lower_leg = ((robot.getObjectByName("right_upper_leg")).getObjectByName("lower_leg") );
-    var left_lower_leg = ((robot.getObjectByName("left_upper_leg")).getObjectByName("lower_leg") );
+    
     
     var head = robot.getObjectByName("head");
     var torso = robot.getObjectByName("torso"); 
 
-    if(right_upper_arm.rotation._z <= (Math.PI) ) {
-        
-        rot_pt = new THREE.Vector3
-            (
-                ( right_upper_arm.geometry.parameters.width + right_upper_arm.__position.x) / 2,
-                ( right_upper_arm.geometry.parameters.height + right_upper_arm.__position.y) / 2.6,
-                0
-            );
-        right_upper_arm.rotateAroundPoint( rot_pt, 0.01 );    
-        
-        rot_pt = new THREE.Vector3
-            (
-                ( left_upper_arm.geometry.parameters.width + left_upper_arm.__position.x) / 0.5,
-                ( left_upper_arm.geometry.parameters.height + left_upper_arm.__position.y) / 2.5,
-                0
-            );
-        left_upper_arm.rotateAroundPoint( rot_pt, -0.01 );
+    //pontos de rotação
+    rot_pt_r = new THREE.Vector3
+    (
+        ( right_upper_arm.geometry.parameters.width + right_upper_arm.__position.x) / 2,
+        ( right_upper_arm.geometry.parameters.height + right_upper_arm.__position.y) / 2.6,
+        0
+    );
 
-    if(right_upper_leg.rotation._z >= 0 && right_upper_leg.rotation._z <= (Math.PI) ) {
-       
-        rot_pt = new THREE.Vector3
-            (
-                ( right_upper_leg.geometry.parameters.width + right_upper_leg.__position.x) / 1,
-                ( right_upper_leg.geometry.parameters.height + right_upper_leg.__position.y) / 3,
-                0
-            );
-        right_upper_leg.rotateAroundPoint( rot_pt, -0.01 );    
-     
-        rot_pt = new THREE.Vector3
-            (
-                ( left_upper_leg.__position.x) / -50,
-                ( left_upper_leg.__position.y) / -40,
-                0
-            );
-        left_upper_leg.rotateAroundPoint( rot_pt, 0.01 );
-    }    
-        rot_pt = new THREE.Vector3
-            (
-                ( torso.geometry.parameters.width + torso.__position.x) / 4,
-                ( torso.geometry.parameters.height + torso.__position.y) / 6,
-                0
-            );
-        torso.translateX(-0.005);
+    rot_pt_l = new THREE.Vector3
+    (
+        ( left_upper_arm.geometry.parameters.width + left_upper_arm.__position.x) / 0.5,
+        ( left_upper_arm.geometry.parameters.height + left_upper_arm.__position.y) / 2.5,
+        0
+    );
+
+    rot_pt_t = new THREE.Vector3
+    (
+        ( torso.geometry.parameters.width + torso.__position.x) / 4,
+        ( torso.geometry.parameters.height + torso.__position.y) / 6,
+        0
+    );
+
+    rot_pt_r_leg = new THREE.Vector3
+    (
+        ( right_upper_leg.geometry.parameters.width + right_upper_leg.__position.x) / 2,
+        ( right_upper_leg.geometry.parameters.height + right_upper_leg.__position.y) / 2.5,
+        0
+    );
+
+    rot_pt_l_leg = new THREE.Vector3
+    (
+        ( left_upper_leg.geometry.parameters.width + left_upper_leg.__position.x) /2,
+        ( left_upper_leg.geometry.parameters.height + left_upper_leg.__position.y) /2.5,
+        0
+    );
 
 
+    if(right_upper_arm.rotation._z >= (Math.PI/6)  ){            
+        direcao = 'direita';
+    }
+    if(right_upper_arm.rotation._z <= -(Math.PI/6) ){           
+        direcao = 'esquerda';
+    }   
 
+    if(direcao == 'esquerda'){
+        console.log("IF 3");
+        right_upper_arm.rotateAroundPoint( rot_pt_r, theta );                
+        left_upper_arm.rotateAroundPoint( rot_pt_l, theta );
+        torso.translateX(-theta); 
+        head.translateY(0.005);       
+                         
+    }  
+    if(direcao == 'direita'){
+        console.log("IF 4");
+        right_upper_arm.rotateAroundPoint( rot_pt_r, -theta );                
+        left_upper_arm.rotateAroundPoint( rot_pt_l, -theta );   
+        torso.translateX(theta)
+        head.translateY(-0.005);    
 
-
-    }else{      
-        
-        //translação da cabeça
-        head.translateY(-0.005);
+    }  
     
-        if(head.position.y <= 4.5){
-            head.position.y = 4.8;
-        }
-        
-   }    
-
     stats.update();
     renderer.render(scene, camera);
 }
-
-/*
-    Falta: 
-    - ajeitar animação 3, 
-    - resetar o robô na troca de animação, 
-    - ajeitar a mão do aceno;    
-*/
 
 init();
